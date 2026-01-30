@@ -15,24 +15,23 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MpvController : public QWidget { // Renamed from MpvWidget to MpvController
+class MpvWidget : public QWidget {
     Q_OBJECT
 public:
     mpv_handle *mpv;
     QLabel *statusLabel;
     QLabel *timeLabel;
     QTimer *pollTimer;
-    bool isPlayerActive;
 
-    explicit MpvController(QWidget *parent = nullptr);
-    ~MpvController();
+    explicit MpvWidget(QWidget *parent = nullptr);
+    ~MpvWidget();
 
-    void initializeMpv();
     void loadVideo(QString path);
+    void closeVideo();  // Unload video without destroying MPV
     void setVolume(int value);
     void togglePause();
     void seek(double seconds);
-    void shutdown();
+    void shutdown(); // The most important function
 
     QString formatTime(double time);
 
@@ -53,8 +52,8 @@ protected:
 
 private:
     Ui::MainWindow *ui;
-    MpvController *player1;
-    MpvController *player2;
+    MpvWidget *player1;
+    MpvWidget *player2;
 };
 
 #endif // MAINWINDOW_H
