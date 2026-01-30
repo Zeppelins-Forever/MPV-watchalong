@@ -6,3 +6,10 @@ You'll have:
 - include/mpv/client.h
 - libmpv.dll.a (import library)
 - libmpv-2.dll (runtime DLL)
+
+Then, once the app is built into an EXE, move libmpv-2.dll into the same folder
+as the exe.
+
+Next, run `C:\Qt\<version-number>\<mingw_64 probably>\bin\windeployqt.exe <theEXEname>`
+from the directory your EXE is in to add all the needed Qt libraries into the same
+directory and such.
