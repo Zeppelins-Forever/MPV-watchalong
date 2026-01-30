@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QTimer>
 #include <QTime>
+#include <QComboBox>
 #include <mpv/client.h>
 
 QT_BEGIN_NAMESPACE
@@ -22,6 +23,8 @@ public:
     QLabel *statusLabel;
     QLabel *timeLabel;
     QTimer *pollTimer;
+    QComboBox *subtitleCombo;  // Subtitle track selector
+    QComboBox *audioCombo;     // Audio track selector
 
     explicit MpvWidget(QWidget *parent = nullptr);
     ~MpvWidget();
@@ -32,6 +35,15 @@ public:
     void togglePause();
     void seek(double seconds);
     void shutdown(); // The most important function
+
+    // Subtitle methods
+    void refreshSubtitleTracks();
+    void setSubtitleTrack(int index);
+    void loadExternalSubtitles(QString path);
+
+    // Audio methods
+    void refreshAudioTracks();
+    void setAudioTrack(int index);
 
     QString formatTime(double time);
 
