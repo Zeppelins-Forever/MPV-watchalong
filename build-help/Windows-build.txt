@@ -1,0 +1,8 @@
+Download mpv development files from: https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
+Get the mpv-dev-x86_64-*.7z file
+Extract it somewhere (e.g., C:\mpv-dev)
+You'll have:
+
+- include/mpv/client.h
+- libmpv.dll.a (import library)
+- libmpv-2.dll (runtime DLL)
