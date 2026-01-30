@@ -26,7 +26,7 @@ MpvWidget::MpvWidget(QWidget *parent) : QWidget(parent), mpv(nullptr), statusLab
     // 3. Configure MPV (Separate Window)
     // We intentionally do NOT set "wid" so MPV opens in its own window,
     // allowing users to position and resize video windows independently.
-    
+
     // Standard settings
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "input-default-bindings", "no");
@@ -101,7 +101,7 @@ void MpvWidget::loadVideo(QString path) {
     // 4. RESUME THE TIMER
     // Now that the file is loaded, it is safe to ask "What time is it?"
     pollTimer->start();
-    
+
     // 5. Refresh subtitle and audio tracks after a short delay to let MPV parse the file
     QTimer::singleShot(500, this, &MpvWidget::refreshSubtitleTracks);
     QTimer::singleShot(500, this, &MpvWidget::refreshAudioTracks);
@@ -124,7 +124,7 @@ void MpvWidget::closeVideo() {
     if (timeLabel) {
         timeLabel->setText("--:--:-- / --:--:--");
     }
-    
+
     // 4. Reset subtitle combo
     if (subtitleCombo) {
         subtitleCombo->blockSignals(true);
@@ -132,7 +132,7 @@ void MpvWidget::closeVideo() {
         subtitleCombo->addItem("Off", 0);
         subtitleCombo->blockSignals(false);
     }
-    
+
     // 5. Reset audio combo
     if (audioCombo) {
         audioCombo->blockSignals(true);
@@ -190,12 +190,12 @@ void MpvWidget::seek(double seconds) {
 
 void MpvWidget::refreshSubtitleTracks() {
     if (!mpv || !subtitleCombo) return;
-    
+
     // Block signals while we update the combo box
     subtitleCombo->blockSignals(true);
     subtitleCombo->clear();
     subtitleCombo->addItem("Off", 0);  // sid=0 means no subtitles
-    
+
     // Get the track list from MPV
     mpv_node trackList;
     if (mpv_get_property(mpv, "track-list", MPV_FORMAT_NODE, &trackList) >= 0) {
@@ -203,18 +203,18 @@ void MpvWidget::refreshSubtitleTracks() {
             for (int i = 0; i < trackList.u.list->num; i++) {
                 mpv_node *track = &trackList.u.list->values[i];
                 if (track->format != MPV_FORMAT_NODE_MAP) continue;
-                
+
                 QString type;
                 int64_t id = 0;
                 QString title;
                 QString lang;
                 bool isExternal = false;
-                
+
                 // Parse track properties
                 for (int j = 0; j < track->u.list->num; j++) {
                     const char *key = track->u.list->keys[j];
                     mpv_node *val = &track->u.list->values[j];
-                    
+
                     if (strcmp(key, "type") == 0 && val->format == MPV_FORMAT_STRING) {
                         type = QString::fromUtf8(val->u.string);
                     } else if (strcmp(key, "id") == 0 && val->format == MPV_FORMAT_INT64) {
@@ -227,21 +227,21 @@ void MpvWidget::refreshSubtitleTracks() {
                         isExternal = val->u.flag;
                     }
                 }
-                
+
                 // Only add subtitle tracks
                 if (type == "sub") {
                     QString label = QString("#%1").arg(id);
                     if (!lang.isEmpty()) label += " [" + lang + "]";
                     if (!title.isEmpty()) label += " " + title;
                     if (isExternal) label += " (external)";
-                    
+
                     subtitleCombo->addItem(label, static_cast<int>(id));
                 }
             }
         }
         mpv_free_node_contents(&trackList);
     }
-    
+
     // Select current track
     int64_t currentSid = 0;
     mpv_get_property(mpv, "sid", MPV_FORMAT_INT64, &currentSid);
@@ -251,13 +251,13 @@ void MpvWidget::refreshSubtitleTracks() {
             break;
         }
     }
-    
+
     subtitleCombo->blockSignals(false);
 }
 
 void MpvWidget::setSubtitleTrack(int index) {
     if (!mpv || !subtitleCombo) return;
-    
+
     int sid = subtitleCombo->itemData(index).toInt();
     int64_t sidValue = sid;
     mpv_set_property(mpv, "sid", MPV_FORMAT_INT64, &sidValue);
@@ -265,14 +265,14 @@ void MpvWidget::setSubtitleTrack(int index) {
 
 void MpvWidget::loadExternalSubtitles(QString path) {
     if (!mpv) return;
-    
+
     QByteArray pathBytes = path.toUtf8();
     const char *cmd[] = {"sub-add", pathBytes.data(), "auto", NULL};
     mpv_command(mpv, cmd);
-    
+
     // Refresh the track list to show the new subtitle
     refreshSubtitleTracks();
-    
+
     // Select the newly added track (it should be the last one)
     if (subtitleCombo && subtitleCombo->count() > 0) {
         subtitleCombo->setCurrentIndex(subtitleCombo->count() - 1);
@@ -281,11 +281,11 @@ void MpvWidget::loadExternalSubtitles(QString path) {
 
 void MpvWidget::refreshAudioTracks() {
     if (!mpv || !audioCombo) return;
-    
+
     // Block signals while we update the combo box
     audioCombo->blockSignals(true);
     audioCombo->clear();
-    
+
     // Get the track list from MPV
     mpv_node trackList;
     if (mpv_get_property(mpv, "track-list", MPV_FORMAT_NODE, &trackList) >= 0) {
@@ -293,18 +293,18 @@ void MpvWidget::refreshAudioTracks() {
             for (int i = 0; i < trackList.u.list->num; i++) {
                 mpv_node *track = &trackList.u.list->values[i];
                 if (track->format != MPV_FORMAT_NODE_MAP) continue;
-                
+
                 QString type;
                 int64_t id = 0;
                 QString title;
                 QString lang;
                 int64_t channels = 0;
-                
+
                 // Parse track properties
                 for (int j = 0; j < track->u.list->num; j++) {
                     const char *key = track->u.list->keys[j];
                     mpv_node *val = &track->u.list->values[j];
-                    
+
                     if (strcmp(key, "type") == 0 && val->format == MPV_FORMAT_STRING) {
                         type = QString::fromUtf8(val->u.string);
                     } else if (strcmp(key, "id") == 0 && val->format == MPV_FORMAT_INT64) {
@@ -317,7 +317,7 @@ void MpvWidget::refreshAudioTracks() {
                         channels = val->u.int64;
                     }
                 }
-                
+
                 // Only add audio tracks
                 if (type == "audio") {
                     QString label = QString("#%1").arg(id);
@@ -330,14 +330,14 @@ void MpvWidget::refreshAudioTracks() {
                         else if (channels == 8) label += " (7.1)";
                         else label += QString(" (%1ch)").arg(channels);
                     }
-                    
+
                     audioCombo->addItem(label, static_cast<int>(id));
                 }
             }
         }
         mpv_free_node_contents(&trackList);
     }
-    
+
     // Select current track
     int64_t currentAid = 0;
     mpv_get_property(mpv, "aid", MPV_FORMAT_INT64, &currentAid);
@@ -347,13 +347,13 @@ void MpvWidget::refreshAudioTracks() {
             break;
         }
     }
-    
+
     audioCombo->blockSignals(false);
 }
 
 void MpvWidget::setAudioTrack(int index) {
     if (!mpv || !audioCombo) return;
-    
+
     int aid = audioCombo->itemData(index).toInt();
     int64_t aidValue = aid;
     mpv_set_property(mpv, "aid", MPV_FORMAT_INT64, &aidValue);
@@ -368,7 +368,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    
+
+    setWindowTitle("mpv-watchalong");
+
     // Set default window size
     resize(900, 450);
 
@@ -376,7 +378,7 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(centralContainer);
     QVBoxLayout *mainLayout = new QVBoxLayout(centralContainer);
     mainLayout->setSpacing(4);  // Reduce vertical spacing between elements
-    
+
     QHBoxLayout *videoArea = new QHBoxLayout();
     videoArea->setSpacing(0);  // No spacing - we'll use a divider
 
@@ -441,7 +443,7 @@ MainWindow::MainWindow(QWidget *parent)
         controls->addWidget(new QLabel("Vol:"));
         controls->addWidget(volSlider);
         col->addLayout(controls);
-        
+
         // Subtitle Controls
         QHBoxLayout *subRow = new QHBoxLayout();
         QLabel *subLabel = new QLabel("Subs:");
@@ -449,24 +451,24 @@ MainWindow::MainWindow(QWidget *parent)
         subCombo->addItem("Off", 0);
         subCombo->setMinimumWidth(120);
         QPushButton *btnLoadSub = new QPushButton("Load Sub...");
-        
+
         subRow->addWidget(subLabel);
         subRow->addWidget(subCombo, 1);
         subRow->addWidget(btnLoadSub);
         col->addLayout(subRow);
-        
+
         playerRef->subtitleCombo = subCombo;
-        
+
         // Audio Controls
         QHBoxLayout *audioRow = new QHBoxLayout();
         QLabel *audioLabel = new QLabel("Audio:");
         QComboBox *audioCombo = new QComboBox();
         audioCombo->setMinimumWidth(120);
-        
+
         audioRow->addWidget(audioLabel);
         audioRow->addWidget(audioCombo, 1);
         col->addLayout(audioRow);
-        
+
         playerRef->audioCombo = audioCombo;
 
         // Wiring
@@ -480,7 +482,7 @@ MainWindow::MainWindow(QWidget *parent)
             if (!fileName.isEmpty()) {
                 // Process events to let macOS finalize any permission grants
                 QApplication::processEvents();
-                
+
                 // Small delay to ensure permission is fully granted
                 QTimer::singleShot(100, [=]() {
                     playerRef->loadVideo(fileName);
@@ -491,26 +493,26 @@ MainWindow::MainWindow(QWidget *parent)
         connect(btnClose, &QPushButton::clicked, [=]() { playerRef->closeVideo(); });
         connect(btnPlay, &QPushButton::clicked, [=]() { playerRef->togglePause(); });
         connect(volSlider, &QSlider::valueChanged, [=](int value) { playerRef->setVolume(value); });
-        
+
         // Subtitle wiring
-        connect(subCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), 
+        connect(subCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 [=](int index) { playerRef->setSubtitleTrack(index); });
-        
+
         connect(btnLoadSub, &QPushButton::clicked, this, [=]() {
-            QString subFile = QFileDialog::getOpenFileName(this, "Select Subtitle File", "", 
-                "Subtitles (*.srt *.ass *.ssa *.sub *.vtt);;All Files (*)");
+            QString subFile = QFileDialog::getOpenFileName(this, "Select Subtitle File", "",
+                                                           "Subtitles (*.srt *.ass *.ssa *.sub *.vtt);;All Files (*)");
             if (!subFile.isEmpty()) {
                 // Process events to let macOS finalize any permission grants
                 QApplication::processEvents();
-                
+
                 QTimer::singleShot(100, [=]() {
                     playerRef->loadExternalSubtitles(subFile);
                 });
             }
         });
-        
+
         // Audio wiring
-        connect(audioCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), 
+        connect(audioCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 [=](int index) { playerRef->setAudioTrack(index); });
 
         return col;
@@ -519,13 +521,13 @@ MainWindow::MainWindow(QWidget *parent)
     // Build UI - Player 1
     QVBoxLayout *leftCol = createPlayerColumn(player1, "Player 1 (Left)");
     videoArea->addLayout(leftCol);
-    
+
     // Vertical divider between players
     QFrame *vLine = new QFrame();
     vLine->setFrameShape(QFrame::VLine);
     vLine->setFrameShadow(QFrame::Sunken);
     videoArea->addWidget(vLine);
-    
+
     // Player 2
     QVBoxLayout *rightCol = createPlayerColumn(player2, "Player 2 (Right)");
     videoArea->addLayout(rightCol);
