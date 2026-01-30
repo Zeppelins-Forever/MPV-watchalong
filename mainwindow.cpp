@@ -185,7 +185,7 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(centralContainer);
     QVBoxLayout *mainLayout = new QVBoxLayout(centralContainer);
     mainLayout->setSpacing(4);  // Reduce vertical spacing between elements
-    
+
     QHBoxLayout *videoArea = new QHBoxLayout();
     videoArea->setSpacing(0);  // No spacing - we'll use a divider
 
@@ -198,7 +198,7 @@ MainWindow::MainWindow(QWidget *parent)
         col->addWidget(header);
 
         playerRef = new MpvWidget();
-        playerRef->setMinimumSize(400, 300);
+        playerRef->setMinimumSize(400, 20);
         col->addWidget(playerRef, 1);
 
         // Info Row
@@ -272,13 +272,13 @@ MainWindow::MainWindow(QWidget *parent)
     // Build UI - Player 1
     QVBoxLayout *leftCol = createPlayerColumn(player1, "Player 1 (Left)");
     videoArea->addLayout(leftCol);
-    
+
     // Vertical divider between players
     QFrame *vLine = new QFrame();
     vLine->setFrameShape(QFrame::VLine);
     vLine->setFrameShadow(QFrame::Sunken);
     videoArea->addWidget(vLine);
-    
+
     // Player 2
     QVBoxLayout *rightCol = createPlayerColumn(player2, "Player 2 (Right)");
     videoArea->addLayout(rightCol);
