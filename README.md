@@ -2,7 +2,7 @@
 
 ### Watch two videos at once, while controlling both!
 
-You can select any two videos and play them in two seperate MPV-based windows, while controlling the most common settings on each (or on both at the same time)!
+You can select any two videos and play them in two seperate MPV-based windows, while controlling the most common settings on each (or on both at the same time)! Works on Windows, MacOS, and Linux (with the KDE desktop being the most well-supported due to buing built in Qt, but it should run mostly fine in other distros too).
 
 ### Note: when you're closing videos, ALWAYS press the in-app "Close" button. The MPV API gets a little funky if you don't, especially on MacOS!
 
