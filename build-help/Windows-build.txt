@@ -1,3 +1,5 @@
+Make sure you have Qt Creator installed. We build using it.
+
 Download mpv development files from: https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
 Get the mpv-dev-x86_64-*.7z file
 Extract it somewhere (e.g., C:\mpv-dev)
