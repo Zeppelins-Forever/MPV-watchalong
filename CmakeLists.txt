@@ -179,14 +179,14 @@ endif()
 # If pkg-config didn't find MPV, try manual detection
 if(NOT MPV_FOUND)
     message(STATUS "pkg-config didn't find MPV, trying manual detection...")
-    
+
     # ------------------------------------------------------------------------
     # Platform-Specific MPV Detection
     # ------------------------------------------------------------------------
     # CMAKE_SYSTEM_NAME contains the OS name: "Darwin" (macOS), "Windows", "Linux"
     # We use this to set platform-specific search paths.
     # ------------------------------------------------------------------------
-    
+
     if(APPLE)
         # macOS: Check Homebrew locations
         # Apple Silicon Macs use /opt/homebrew, Intel Macs use /usr/local
@@ -210,7 +210,7 @@ if(NOT MPV_FOUND)
             /usr/local
         )
     endif()
-    
+
     # ------------------------------------------------------------------------
     # Search for MPV Header
     # ------------------------------------------------------------------------
@@ -224,7 +224,7 @@ if(NOT MPV_FOUND)
         HINTS ${MPV_SEARCH_PATHS}    # Where to look
         PATH_SUFFIXES include        # Check "include" subdirectory
     )
-    
+
     # ------------------------------------------------------------------------
     # Search for MPV Library
     # ------------------------------------------------------------------------
@@ -239,7 +239,7 @@ if(NOT MPV_FOUND)
         HINTS ${MPV_SEARCH_PATHS}    # Where to look
         PATH_SUFFIXES lib lib64      # Check lib and lib64 subdirectories
     )
-    
+
     # Check if we found both header and library
     if(MPV_INCLUDE_DIR AND MPV_LIBRARY)
         set(MPV_FOUND TRUE)
@@ -248,7 +248,7 @@ if(NOT MPV_FOUND)
         message(STATUS "Found MPV: ${MPV_LIBRARY}")
     else()
         # Provide helpful error message
-        message(FATAL_ERROR 
+        message(FATAL_ERROR
             "MPV library not found!\n"
             "Please install MPV development files:\n"
             "  - macOS: brew install mpv\n"
@@ -295,6 +295,8 @@ if(Qt6_FOUND)
     # Qt 6 provides qt_add_executable for better integration
     qt_add_executable(${PROJECT_NAME}
         MANUAL_FINALIZATION        # We'll call qt_finalize_executable later
+        MACOSX_BUNDLE
+        WIN32
         ${PROJECT_SOURCES}
     )
 else()
@@ -365,15 +367,15 @@ if(APPLE)
     if(EXISTS ${MACOS_ICON_FILE})
         # Set the icon file as a source file for the target
         # MACOSX_BUNDLE is already set in add_executable above
-        
+
         # Tell CMake this is a resource file that goes in the bundle
         set_source_files_properties(${MACOS_ICON_FILE} PROPERTIES
             MACOSX_PACKAGE_LOCATION "Resources"
         )
-        
+
         # Add the icon to the executable's sources
         target_sources(${PROJECT_NAME} PRIVATE ${MACOS_ICON_FILE})
-        
+
         # Set bundle properties
         set_target_properties(${PROJECT_NAME} PROPERTIES
             MACOSX_BUNDLE_ICON_FILE "app-icon.icns"
@@ -382,7 +384,7 @@ if(APPLE)
             MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
             MACOSX_BUNDLE_GUI_IDENTIFIER "com.yourcompany.mpv-watchalong"
         )
-        
+
         message(STATUS "macOS icon configured: ${MACOS_ICON_FILE}")
     else()
         message(STATUS "macOS icon not found at ${MACOS_ICON_FILE}")
@@ -398,14 +400,14 @@ if(WIN32)
         # Windows requires a .rc (resource script) file to embed the icon
         # We generate one automatically
         set(RC_FILE "${CMAKE_BINARY_DIR}/app-icon.rc")
-        
+
         # Create the .rc file content
         # IDI_ICON1 is a standard identifier for the application icon
         file(WRITE ${RC_FILE} "IDI_ICON1 ICON \"${WINDOWS_ICON_FILE}\"\n")
-        
+
         # Add the .rc file to the executable sources
         target_sources(${PROJECT_NAME} PRIVATE ${RC_FILE})
-        
+
         message(STATUS "Windows icon configured: ${WINDOWS_ICON_FILE}")
     else()
         message(STATUS "Windows icon not found at ${WINDOWS_ICON_FILE}")
