@@ -3,7 +3,7 @@
 ### Watch two videos at once, while controlling both!
 
 <p align="center">
-<img src="https://github.com/Zeppelins-Forever/MPV-watchalong/blob/icon&comments/icons/app-icon.png?raw=true" alt="Description" width="150" height="150" align="center">
+<img src="https://github.com/Zeppelins-Forever/MPV-watchalong/blob/main/icons/app-icon.png?raw=true" alt="logo" width="150" height="150" align="center">
 </p>
 
 You can select any two videos and play them in two seperate MPV-based windows, while controlling the most common settings on each (or on both at the same time)! Works on Windows, MacOS, and Linux (with the KDE Plasma desktop being the most well-supported due to buing built in Qt, but it should run mostly fine in other desktops too).
@@ -27,7 +27,7 @@ Or, if you've downloaded the VOD and the media, perfect for watching watchalong 
 
 ### To-do
 
-- Add icons on the buttons, i.e. Pause/Play
+- Add icons for app and on the buttons, i.e. Pause/Play
 - Try to add dark mode explicit toggle for non-Qt-based systems.
 - Try to make statically linked, single-executable Windows EXE.
 - Maybe move the "close" button somewhere more out-of-the-way.
