@@ -14,8 +14,10 @@
 #include <locale.h>          // C standard library for locale (language/region) settings.
 // We need this to fix a compatibility issue with MPV.
 
-#include <signal.h>
-
+// If we are on Linux/Mac, import signals library (since it doesn't exist on Windows.
+#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+    #include <signal.h>
+#endif
 // ----------------------------------------------------------------------------
 // main() - Program entry point
 // ----------------------------------------------------------------------------
@@ -32,7 +34,10 @@ int main(int argc, char *argv[])
     // On Linux, closing a window or stopping audio while a stream is active
     // can trigger this signal. The default action is to crash the app.
     // We must ignore it to let the app continue running.
-    signal(SIGPIPE, SIG_IGN);
+    #if defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
+        signal(SIGPIPE, SIG_IGN);
+    #endif
+    
 
     // Create the QApplication instance.
     // This MUST be created before any Qt widgets. It:
