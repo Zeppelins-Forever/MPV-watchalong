@@ -31,34 +31,34 @@
 // ----------------------------------------------------------------------------
 
 #include <QMainWindow>   // Base class for main application windows.
-                         // Provides menu bars, toolbars, status bars, etc.
+// Provides menu bars, toolbars, status bars, etc.
 
 #include <QWidget>       // Base class for ALL visual UI elements in Qt.
-                         // Buttons, labels, text boxes - everything inherits from QWidget.
+// Buttons, labels, text boxes - everything inherits from QWidget.
 
 #include <QSlider>       // A slider widget (we use it for volume control).
 
 #include <QFileDialog>   // Provides native file open/save dialogs.
-                         // Automatically uses the OS's native file picker.
+// Automatically uses the OS's native file picker.
 
 #include <QCloseEvent>   // Event object for window close events.
-                         // Lets us intercept and handle when user closes the window.
+// Lets us intercept and handle when user closes the window.
 
 #include <QLabel>        // A widget that displays text or images.
-                         // We use it for showing filenames and timestamps.
+// We use it for showing filenames and timestamps.
 
 #include <QTimer>        // Provides repetitive and single-shot timers.
-                         // We use it to periodically update the playback time display.
+// We use it to periodically update the playback time display.
 
 #include <QTime>         // A class for working with time values (hours, minutes, seconds).
-                         // Used to format playback position as "HH:MM:SS".
+// Used to format playback position as "HH:MM:SS".
 
 #include <QComboBox>     // A dropdown selection widget.
-                         // We use it for audio and subtitle track selection.
+// We use it for audio and subtitle track selection.
 
 #include <mpv/client.h>  // The MPV library's C API header.
-                         // This gives us access to all MPV functions for video playback.
-                         // MPV is a powerful open-source media player/library.
+// This gives us access to all MPV functions for video playback.
+// MPV is a powerful open-source media player/library.
 
 // ----------------------------------------------------------------------------
 // Qt Namespace Declaration
@@ -103,23 +103,23 @@ public:
     // ------------------------------------------------------------------------
 
     mpv_handle *mpv;            // Pointer to the MPV player instance.
-                                 // This is MPV's main handle - all MPV API calls use this.
-                                 // nullptr means no player is initialized.
+    // This is MPV's main handle - all MPV API calls use this.
+    // nullptr means no player is initialized.
 
     QLabel *statusLabel;         // Pointer to the label showing the current filename.
-                                 // We store this so we can update it when files load.
+    // We store this so we can update it when files load.
 
     QLabel *timeLabel;           // Pointer to the label showing playback time.
-                                 // Displays "current / duration" format.
+    // Displays "current / duration" format.
 
     QTimer *pollTimer;           // Timer that fires periodically to update the time display.
-                                 // Qt timers emit a signal at set intervals.
+    // Qt timers emit a signal at set intervals.
 
     QComboBox *subtitleCombo;    // Dropdown for selecting subtitle tracks.
-                                 // Populated when a video with subtitles is loaded.
+    // Populated when a video with subtitles is loaded.
 
     QComboBox *audioCombo;       // Dropdown for selecting audio tracks.
-                                 // Populated when a video with multiple audio tracks is loaded.
+    // Populated when a video with multiple audio tracks is loaded.
 
     // ------------------------------------------------------------------------
     // Constructor and Destructor
@@ -144,65 +144,65 @@ public:
     // ------------------------------------------------------------------------
 
     void loadVideo(QString path);      // Load and start playing a video file.
-                                        // QString is Qt's string class - more powerful than std::string.
+    // QString is Qt's string class - more powerful than std::string.
 
     void closeVideo();                  // Stop playback and unload the current video.
-                                        // Resets the player to its initial state.
+    // Resets the player to its initial state.
 
     void setVolume(int value);          // Set the audio volume (0-100 scale).
 
     void togglePause();                 // Toggle between playing and paused states.
 
     void seek(double seconds);          // Seek forward or backward by the specified seconds.
-                                        // Positive = forward, negative = backward.
+    // Positive = forward, negative = backward.
 
     void shutdown();                    // Completely shut down the MPV instance.
-                                        // Called when closing the application.
-                                        // This is critical for clean app termination!
+    // Called when closing the application.
+    // This is critical for clean app termination!
 
     // ------------------------------------------------------------------------
     // Subtitle Methods
     // ------------------------------------------------------------------------
 
     void refreshSubtitleTracks();       // Query MPV for available subtitle tracks and
-                                        // populate the subtitle dropdown.
+    // populate the subtitle dropdown.
 
     void setSubtitleTrack(int index);   // Switch to the subtitle track at the given
-                                        // dropdown index.
+    // dropdown index.
 
     void loadExternalSubtitles(QString path);  // Load a subtitle file from disk
-                                               // (e.g., .srt, .ass files).
+    // (e.g., .srt, .ass files).
 
     // ------------------------------------------------------------------------
     // Audio Methods
     // ------------------------------------------------------------------------
 
     void refreshAudioTracks();          // Query MPV for available audio tracks and
-                                        // populate the audio dropdown.
+    // populate the audio dropdown.
 
     void setAudioTrack(int index);      // Switch to the audio track at the given
-                                        // dropdown index.
+    // dropdown index.
 
     // ------------------------------------------------------------------------
     // Utility Methods
     // ------------------------------------------------------------------------
 
     QString formatTime(double time);    // Convert seconds (e.g., 3661.5) to a
-                                        // human-readable string (e.g., "01:01:01").
+    // human-readable string (e.g., "01:01:01").
 
-// ------------------------------------------------------------------------
-// Public Slots
-// ------------------------------------------------------------------------
-// Slots are special methods that can be connected to signals. When a signal
-// is emitted, all connected slots are called automatically.
-//
-// This is Qt's implementation of the Observer pattern - it allows loose
-// coupling between objects. The timer doesn't need to know about our widget;
-// it just emits a signal, and Qt handles the connection.
-// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Public Slots
+    // ------------------------------------------------------------------------
+    // Slots are special methods that can be connected to signals. When a signal
+    // is emitted, all connected slots are called automatically.
+    //
+    // This is Qt's implementation of the Observer pattern - it allows loose
+    // coupling between objects. The timer doesn't need to know about our widget;
+    // it just emits a signal, and Qt handles the connection.
+    // ------------------------------------------------------------------------
 public slots:
     void onTimerTick();                 // Called every time pollTimer fires.
-                                        // Updates the time display with current position.
+    // Updates the time display with current position.
 };
 
 // ============================================================================
@@ -240,9 +240,9 @@ protected:
     // ------------------------------------------------------------------------
 
     void closeEvent(QCloseEvent *event) override;
-        // Called when the user tries to close the window (clicking X, Alt+F4, etc.).
-        // We override this to properly shut down MPV before the window closes.
-        // Without this, the app could hang or crash on exit.
+    // Called when the user tries to close the window (clicking X, Alt+F4, etc.).
+    // We override this to properly shut down MPV before the window closes.
+    // Without this, the app could hang or crash on exit.
 
 private:
     // ------------------------------------------------------------------------
@@ -253,8 +253,8 @@ private:
     // ------------------------------------------------------------------------
 
     Ui::MainWindow *ui;     // Pointer to the auto-generated UI class.
-                            // Created from mainwindow.ui by Qt's UI compiler.
-                            // Contains all widgets defined in the Qt Designer.
+    // Created from mainwindow.ui by Qt's UI compiler.
+    // Contains all widgets defined in the Qt Designer.
 
     MpvWidget *player1;     // The first video player (left side in the UI).
     MpvWidget *player2;     // The second video player (right side in the UI).
