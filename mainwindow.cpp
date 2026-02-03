@@ -842,7 +842,7 @@ MainWindow::MainWindow(QWidget *parent)
         // Volume slider: horizontal orientation, range 0-100, default 50%
         QSlider *volSlider = new QSlider(Qt::Horizontal);
         volSlider->setRange(0, 100);
-        volSlider->setValue(50);
+        volSlider->setValue(100);
 
         // Red text for Close button to indicate it's a "destructive" action
         btnClose->setStyleSheet("color: #aa0000;");
