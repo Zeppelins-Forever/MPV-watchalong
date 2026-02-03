@@ -112,17 +112,12 @@ MpvWidget::MpvWidget(QWidget *parent) : QWidget(parent), mpv(nullptr), statusLab
     // which could clutter logs or cause issues on some platforms.
     mpv_set_option_string(mpv, "terminal", "no");
 
-    // CRITICAL LINUX FIX:
-    // Running multiple MPV instances with hardware decoding (hwdec) enabled
-    // causes crashes on Linux due to driver/context conflicts in the same process.
-    // We disable it to force software decoding, which is thread-safe and stable.
-    mpv_set_option_string(mpv, "hwdec", "no");
-
-    // OPTIONAL STABILITY BOOST:
-    // If 'hwdec=no' alone doesn't fix it, uncomment the line below.
-    // The default "gpu" output can sometimes conflict when two windows share
-    // the same application process. "x11" is a basic, safe fallback.
-    mpv_set_option_string(mpv, "vo", "x11");
+    #if defined(Q_OS_LINUX)
+        // These settings are necessary for stability on Linux to prevent
+        // driver conflicts between the two players.
+        mpv_set_option_string(mpv, "hwdec", "no");
+        mpv_set_option_string(mpv, "vo", "x11");
+    #endif
 
     // ------------------------------------------------------------------------
     // Initialize MPV
