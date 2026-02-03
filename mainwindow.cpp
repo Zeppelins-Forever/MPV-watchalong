@@ -721,6 +721,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Setup the UI from the .ui file (required even if we override everything)
     ui->setupUi(this);
 
+    setWindowTitle("mpv-watchalong");
+
     // Set the window's default size (width x height in pixels)
     // The user can still resize the window, but it starts at this size.
     resize(900, 450);
