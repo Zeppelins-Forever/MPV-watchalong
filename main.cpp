@@ -9,10 +9,12 @@
 #include "mainwindow.h"      // Our custom MainWindow class (the app's main UI)
 
 #include <QApplication>      // Qt's application class - manages app-wide resources
-                             // and settings. Required for any Qt GUI application.
+// and settings. Required for any Qt GUI application.
 
 #include <locale.h>          // C standard library for locale (language/region) settings.
-                             // We need this to fix a compatibility issue with MPV.
+// We need this to fix a compatibility issue with MPV.
+
+#include <signal.h>
 
 // ----------------------------------------------------------------------------
 // main() - Program entry point
@@ -26,6 +28,12 @@
 // ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+    // Ignore SIGPIPE.
+    // On Linux, closing a window or stopping audio while a stream is active
+    // can trigger this signal. The default action is to crash the app.
+    // We must ignore it to let the app continue running.
+    signal(SIGPIPE, SIG_IGN);
+
     // Create the QApplication instance.
     // This MUST be created before any Qt widgets. It:
     //   - Initializes the Qt framework
