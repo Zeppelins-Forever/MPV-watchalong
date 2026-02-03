@@ -115,7 +115,10 @@ MpvWidget::MpvWidget(QWidget *parent) : QWidget(parent), mpv(nullptr), statusLab
     #if defined(Q_OS_LINUX)
         // These settings are necessary for stability on Linux to prevent
         // driver conflicts between the two players.
-        mpv_set_option_string(mpv, "hwdec", "no");
+    
+        // mpv_set_option_string(mpv, "hwdec", "no");
+        // Keep this option commented unless issues come up.
+    
         mpv_set_option_string(mpv, "vo", "x11");
     #endif
 
