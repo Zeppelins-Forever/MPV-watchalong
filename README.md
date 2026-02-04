@@ -8,6 +8,9 @@
 
 You can select any two videos and play them in two seperate MPV-based windows, while controlling the most common settings on each (or on both at the same time)! Works on Windows, MacOS, and Linux (with the KDE Plasma desktop being the most well-supported due to buing built in Qt, but it should run mostly fine in other desktops too).
 
+### Requirements
+For Linux/MacOS users, make sure you have `mpv` installed on your system. For MacOS users, I suggest using [brew](https://brew.sh/) (assuming you have brew on your system) to install mpv. Do so with `brew install mpv`. For Linux users, consult your [distro's repositories](https://repology.org/project/mpv/versions) to make sure you have `mpv` on your system.
+
 ### Note: when you're closing videos, ALWAYS press the in-app "Close" button. The MPV API gets a little funky if you don't, especially on MacOS!
 
 Perfect for comparing the output of a video processing software!
