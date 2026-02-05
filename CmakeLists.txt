@@ -278,6 +278,66 @@ set(PROJECT_SOURCES
     mainwindow.ui
 )
 
+# ==============================================================================
+# APPLICATION ICON CONFIGURATION (BEFORE add_executable)
+# ==============================================================================
+# Platform-specific icon handling. Unlike qmake, CMake requires more explicit
+# configuration for application icons.
+#
+# IMPORTANT: For macOS, the icon file MUST be added to PROJECT_SOURCES before
+# creating the executable. This ensures the icon is properly included in the
+# app bundle. Setting source file properties and adding via target_sources()
+# after qt_add_executable() may not work reliably, especially with Qt 6.
+#
+# NOTE ON LINUX: Linux does not support embedded application icons in ELF
+# executables. Desktop environments use external icon files referenced by
+# .desktop files, following the freedesktop.org specification. Linux icon
+# installation is handled in the installation section below.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# macOS Icon - Add to Sources BEFORE Creating Executable
+# ------------------------------------------------------------------------------
+if(APPLE)
+    set(MACOS_ICON_FILE "${CMAKE_SOURCE_DIR}/icons/app-icon.icns")
+    if(EXISTS ${MACOS_ICON_FILE})
+        # Add icon to project sources - this is critical for proper bundle inclusion
+        list(APPEND PROJECT_SOURCES ${MACOS_ICON_FILE})
+
+        # Tell CMake this is a resource file that goes in the bundle's Resources folder
+        set_source_files_properties(${MACOS_ICON_FILE} PROPERTIES
+            MACOSX_PACKAGE_LOCATION "Resources"
+        )
+
+        message(STATUS "macOS icon found: ${MACOS_ICON_FILE}")
+    else()
+        message(STATUS "macOS icon not found at ${MACOS_ICON_FILE}")
+    endif()
+endif()
+
+# ------------------------------------------------------------------------------
+# Windows Icon - Generate Resource File BEFORE Creating Executable
+# ------------------------------------------------------------------------------
+if(WIN32)
+    set(WINDOWS_ICON_FILE "${CMAKE_SOURCE_DIR}/icons/app-icon.ico")
+    if(EXISTS ${WINDOWS_ICON_FILE})
+        # Windows requires a .rc (resource script) file to embed the icon
+        # We generate one automatically
+        set(RC_FILE "${CMAKE_BINARY_DIR}/app-icon.rc")
+
+        # Create the .rc file content
+        # IDI_ICON1 is a standard identifier for the application icon
+        file(WRITE ${RC_FILE} "IDI_ICON1 ICON \"${WINDOWS_ICON_FILE}\"\n")
+
+        # Add the .rc file to the project sources
+        list(APPEND PROJECT_SOURCES ${RC_FILE})
+
+        message(STATUS "Windows icon configured: ${WINDOWS_ICON_FILE}")
+    else()
+        message(STATUS "Windows icon not found at ${WINDOWS_ICON_FILE}")
+    endif()
+endif()
+
 # ------------------------------------------------------------------------------
 # Create the Executable Target
 # ------------------------------------------------------------------------------
@@ -290,6 +350,9 @@ set(PROJECT_SOURCES
 # application instead of a console application:
 #   - Windows: No console window appears when running the app
 #   - macOS: Creates a proper .app bundle
+#
+# NOTE: PROJECT_SOURCES now includes platform-specific icon resources
+# (macOS .icns file, Windows .rc file) that were added above.
 # ------------------------------------------------------------------------------
 if(Qt6_FOUND)
     # Qt 6 provides qt_add_executable for better integration
@@ -306,6 +369,25 @@ else()
         MACOSX_BUNDLE             # macOS: Create .app bundle
         ${PROJECT_SOURCES}
     )
+endif()
+
+# ------------------------------------------------------------------------------
+# macOS Bundle Properties (AFTER Creating Executable)
+# ------------------------------------------------------------------------------
+# Set bundle metadata properties. This must come after add_executable but
+# the icon file itself must have been included in the sources above.
+# ------------------------------------------------------------------------------
+if(APPLE AND EXISTS "${CMAKE_SOURCE_DIR}/icons/app-icon.icns")
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        # MACOSX_BUNDLE_ICON_FILE should be just the filename, not the full path
+        # CMake will look for this file in the Resources folder of the bundle
+        MACOSX_BUNDLE_ICON_FILE "app-icon.icns"
+        MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.yourcompany.mpv-watchalong"
+    )
+    message(STATUS "macOS bundle properties configured")
 endif()
 
 # ------------------------------------------------------------------------------
@@ -351,69 +433,6 @@ if(MPV_LIBRARY_DIRS)
     target_link_directories(${PROJECT_NAME} PRIVATE ${MPV_LIBRARY_DIRS})
 endif()
 
-# ==============================================================================
-# APPLICATION ICON CONFIGURATION
-# ==============================================================================
-# Platform-specific icon handling. Unlike qmake, CMake requires more explicit
-# configuration for application icons.
-# ==============================================================================
-
-# ------------------------------------------------------------------------------
-# macOS Icon and Bundle Configuration
-# ------------------------------------------------------------------------------
-if(APPLE)
-    # Check if icon file exists
-    set(MACOS_ICON_FILE "${CMAKE_SOURCE_DIR}/icons/app-icon.icns")
-    if(EXISTS ${MACOS_ICON_FILE})
-        # Set the icon file as a source file for the target
-        # MACOSX_BUNDLE is already set in add_executable above
-
-        # Tell CMake this is a resource file that goes in the bundle
-        set_source_files_properties(${MACOS_ICON_FILE} PROPERTIES
-            MACOSX_PACKAGE_LOCATION "Resources"
-        )
-
-        # Add the icon to the executable's sources
-        target_sources(${PROJECT_NAME} PRIVATE ${MACOS_ICON_FILE})
-
-        # Set bundle properties
-        set_target_properties(${PROJECT_NAME} PROPERTIES
-            MACOSX_BUNDLE_ICON_FILE "app-icon.icns"
-            MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
-            MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
-            MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
-            MACOSX_BUNDLE_GUI_IDENTIFIER "com.yourcompany.mpv-watchalong"
-        )
-
-        message(STATUS "macOS icon configured: ${MACOS_ICON_FILE}")
-    else()
-        message(STATUS "macOS icon not found at ${MACOS_ICON_FILE}")
-    endif()
-endif()
-
-# ------------------------------------------------------------------------------
-# Windows Icon Configuration
-# ------------------------------------------------------------------------------
-if(WIN32)
-    set(WINDOWS_ICON_FILE "${CMAKE_SOURCE_DIR}/icons/app-icon.ico")
-    if(EXISTS ${WINDOWS_ICON_FILE})
-        # Windows requires a .rc (resource script) file to embed the icon
-        # We generate one automatically
-        set(RC_FILE "${CMAKE_BINARY_DIR}/app-icon.rc")
-
-        # Create the .rc file content
-        # IDI_ICON1 is a standard identifier for the application icon
-        file(WRITE ${RC_FILE} "IDI_ICON1 ICON \"${WINDOWS_ICON_FILE}\"\n")
-
-        # Add the .rc file to the executable sources
-        target_sources(${PROJECT_NAME} PRIVATE ${RC_FILE})
-
-        message(STATUS "Windows icon configured: ${WINDOWS_ICON_FILE}")
-    else()
-        message(STATUS "Windows icon not found at ${WINDOWS_ICON_FILE}")
-    endif()
-endif()
-
 # ------------------------------------------------------------------------------
 # Qt 6 Finalization
 # ------------------------------------------------------------------------------
@@ -444,8 +463,23 @@ install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}       # Windows/Linux: executable
 )
 
-# On Linux, you might want to install a .desktop file and icon
-# This is just an example - adjust paths for your needs
+# ------------------------------------------------------------------------------
+# Linux Desktop Integration
+# ------------------------------------------------------------------------------
+# Linux does NOT support embedded application icons in ELF executables.
+# Instead, desktop environments follow the freedesktop.org specification:
+#   - Icons are installed to /usr/share/icons/hicolor/<size>/apps/
+#   - .desktop files in /usr/share/applications/ reference these icons
+#
+# For a complete Linux installation, you would also need a .desktop file.
+# Example mpv-watchalong.desktop:
+#   [Desktop Entry]
+#   Type=Application
+#   Name=MPV Watchalong
+#   Exec=mpv-watchalong
+#   Icon=mpv-watchalong
+#   Categories=AudioVideo;Video;
+# ------------------------------------------------------------------------------
 if(UNIX AND NOT APPLE)
     # Install icon for Linux desktop
     install(FILES icons/app-icon.png
@@ -453,6 +487,13 @@ if(UNIX AND NOT APPLE)
         RENAME mpv-watchalong.png
         OPTIONAL  # Don't fail if file doesn't exist
     )
+
+    # Optionally install a .desktop file if one exists
+    if(EXISTS "${CMAKE_SOURCE_DIR}/mpv-watchalong.desktop")
+        install(FILES mpv-watchalong.desktop
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications
+        )
+    endif()
 endif()
 
 # ==============================================================================
