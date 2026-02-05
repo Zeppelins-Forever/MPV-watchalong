@@ -912,7 +912,7 @@ MainWindow::MainWindow(QWidget *parent)
         connect(btnLoad, &QPushButton::clicked, this, [=]() {
             // QFileDialog::getOpenFileName shows a native file picker.
             // Parameters: parent, title, starting directory, file filter
-            QString fileName = QFileDialog::getOpenFileName(this, "Select Video", "", "Videos (*.mp4 *.mkv *.avi *.mov *webm)");
+            QString fileName = QFileDialog::getOpenFileName(this, "Select Video", "", "Videos (*.mp4 *.mkv *.avi *.mov *.webm *.ogv *.flv *.ts);;All Files(*)");
 
             // CRITICAL: QFileDialog on Linux often resets LC_NUMERIC to the system default
             // (e.g., using commas for decimals). We MUST reset it to "C" immediately,
