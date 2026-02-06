@@ -1,0 +1,3 @@
+1) Create `build` directory in project. `cd` into it.
+2) Run `cmake ..`
+3) Run `cmake --build .`
