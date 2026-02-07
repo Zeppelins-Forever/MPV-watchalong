@@ -38,6 +38,8 @@
 
 #include <QSlider>       // A slider widget (we use it for volume control).
 
+#include <QStyleHints>   // For detecting OS color scheme (Qt 6.5+)
+
 #include <QFileDialog>   // Provides native file open/save dialogs.
 // Automatically uses the OS's native file picker.
 
@@ -258,6 +260,9 @@ private:
 
     MpvWidget *player1;     // The first video player (left side in the UI).
     MpvWidget *player2;     // The second video player (right side in the UI).
+
+    bool isDarkMode;
+    void applyTheme(bool dark);
 };
 
 #endif // MAINWINDOW_H  // End of include guard
