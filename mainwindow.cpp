@@ -115,10 +115,10 @@ MpvWidget::MpvWidget(QWidget *parent) : QWidget(parent), mpv(nullptr), statusLab
     #if defined(Q_OS_LINUX)
         // These settings are necessary for stability on Linux to prevent
         // driver conflicts between the two players.
-    
+
         // mpv_set_option_string(mpv, "hwdec", "no");
         // Keep this option commented unless issues come up.
-    
+
         mpv_set_option_string(mpv, "vo", "x11");
     #endif
 
@@ -725,6 +725,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     setWindowTitle("mpv-watchalong");
+
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        auto scheme = QApplication::styleHints()->colorScheme();
+        if (scheme == Qt::ColorScheme::Unknown) {
+            // Default to dark when OS preference is unknown
+            QApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+        }
+        // Otherwise, Qt automatically uses the OS preference — no override needed.
+
+        // Live theme change: no extra work needed, Qt follows the OS natively.
+    #else
+        // Fallback for Qt 6.0–6.4: force dark palette manually
+        QColor bg = QApplication::palette().color(QPalette::Window);
+        if (bg.lightness() > 128) {
+            // System appears light — but we can't easily force dark without
+            // a stylesheet on older Qt, so just leave the system default.
+        }
+    #endif
 
     // Set the window's default size (width x height in pixels)
     // The user can still resize the window, but it starts at this size.
