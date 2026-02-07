@@ -12,6 +12,6 @@ You'll have:
 Then, once the app is built into an EXE, move libmpv-2.dll into the same folder
 as the exe.
 
-Next, run `C:\Qt\<version-number>\<mingw_64 probably>\bin\windeployqt6.exe <theEXEname>`
+Next, run `C:\Qt\<version-number>\<mingw_64 probably>\bin\windeployqt6.exe --no-translations <theEXEname>`
 from the directory your EXE is in to add all the needed Qt libraries into the same
 directory and such.
