@@ -451,7 +451,7 @@ void MpvWidget::seek(double seconds) {
     // std::to_string() uses the global locale, which is risky if it ever drifts.
     std::string timeStr = QString::number(seconds, 'f', 3).toStdString();
 
-    const char *cmd[] = {"seek", timeStr.c_str(), "relative", NULL};
+    const char *cmd[] = {"seek", timeStr.c_str(), "relative+exact", NULL};
     mpv_command(mpv, cmd);
 
     // Update the time display immediately for better UI responsiveness.
