@@ -1,0 +1,5 @@
+1. Download and install Qt Creator Studio fro Mac
+
+2. Open Project (select CMakeLists.txt)
+
+3. Build as Release
