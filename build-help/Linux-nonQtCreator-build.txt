@@ -1,3 +1,8 @@
-1) Create `build` directory in project. `cd` into it.
-2) Run `cmake ..`
-3) Run `cmake --build .`
+# From Root Dir of project.
+
+# 3 Options
+cmake -B build                                     # Release - default
+cmake -B build -DCMAKE_BUILD_TYPE=Debug            # Only needed to specify debug build
+cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo   # optimized + debug symbols
+
+cmake --build build                                # actually compile
