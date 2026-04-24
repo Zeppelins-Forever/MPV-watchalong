@@ -1,37 +1,5 @@
-# ==============================================================================
-# CMakeLists.txt - CMake Build Configuration for MPV-watchalong
-# ==============================================================================
-#
-# CMake is a "meta build system" - it doesn't compile code directly. Instead,
-# it generates build files for other systems (Makefiles, Ninja, Visual Studio
-# projects, Xcode projects, etc.). This makes it highly portable.
-#
-# WHY CMAKE OVER QMAKE?
-# ---------------------
-# 1. Industry Standard: CMake is the de facto standard for C++ projects
-# 2. Better IDE Support: Most IDEs (CLion, VS Code, Visual Studio) prefer CMake
-# 3. More Powerful: Better dependency management, testing, packaging support
-# 4. Qt's Future: Qt 6 was built with CMake; qmake is in maintenance mode
-# 5. Cross-Project Compatibility: Easier to integrate with other CMake libraries
-#
-# HOW TO BUILD WITH CMAKE:
-# ------------------------
-# Method 1: Command Line (Traditional)
-#   mkdir build          # Create a build directory (keeps source clean)
-#   cd build
-#   cmake ..             # Generate build files (.. points to source directory)
-#   cmake --build .      # Compile the project
-#
-# Method 2: Command Line (Modern CMake 3.13+)
 #   cmake -B build       # Generate build files in "build" directory
 #   cmake --build build  # Compile
-#
-# Method 3: Qt Creator
-#   File -> Open File or Project -> Select CMakeLists.txt
-#   Qt Creator handles everything automatically!
-#
-# Method 4: VS Code
-#   Install "CMake Tools" extension, open folder, it auto-detects CMakeLists.txt
 #
 # ==============================================================================
 
@@ -76,6 +44,56 @@ project(MPV-watchalong
     DESCRIPTION "Synchronized dual video player using MPV"
     LANGUAGES CXX
 )
+
+# ------------------------------------------------------------------------------
+# Default Build Type and Optimization
+# ------------------------------------------------------------------------------
+# CMake supports several standard build types, each with its own preset flags:
+#
+#   Release        - Optimized for speed, no debug symbols, NDEBUG defined.
+#                    (GCC/Clang: -O3 -DNDEBUG   |  MSVC: /O2 /DNDEBUG)
+#                    This is what you want for distributing the app.
+#
+#   Debug          - No optimization, full debug symbols, assertions active.
+#                    (GCC/Clang: -O0 -g         |  MSVC: /Od /Zi)
+#                    Slow, but gdb/lldb/the Qt Creator debugger work nicely.
+#
+#   RelWithDebInfo - Optimized AND includes debug symbols. A good middle
+#                    ground when you need to profile or get readable crash
+#                    backtraces from a near-release build.
+#                    (GCC/Clang: -O2 -g -DNDEBUG |  MSVC: /O2 /Zi /DNDEBUG)
+#
+#   MinSizeRel     - Optimize for binary size instead of speed.
+#                    (GCC/Clang: -Os -DNDEBUG    |  MSVC: /O1 /DNDEBUG)
+#
+# If you just run `cmake ..` with no options, CMAKE_BUILD_TYPE is empty by
+# default and NO optimization flags are passed — the compiler uses its default
+# (-O0 on GCC/Clang), producing a slow debug-speed binary even for end users.
+# That's bad for a video app, so we default to Release if the user didn't
+# pick anything.
+#
+# The CMAKE_CONFIGURATION_TYPES check excludes multi-config generators
+# (Visual Studio, Xcode) where build type is chosen at build time rather
+# than configure time — for those, the default is already handled by the IDE.
+#
+# HOW TO PICK A BUILD TYPE:
+#   cmake -B build                              # Release (our default)
+#   cmake -B build -DCMAKE_BUILD_TYPE=Debug     # Debug build
+#   cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+#   cmake --build build                         # actually compile
+#
+# To switch build types later, either delete the build/ dir and re-run cmake,
+# or pass -DCMAKE_BUILD_TYPE=... again to overwrite the cached value.
+# ------------------------------------------------------------------------------
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "No build type specified — defaulting to Release.")
+    message(STATUS "Override with: cmake -DCMAKE_BUILD_TYPE=Debug (or RelWithDebInfo, MinSizeRel)")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+        "Build type: Debug, Release, RelWithDebInfo, or MinSizeRel" FORCE)
+    # Makes the build type show up as a dropdown in GUIs like cmake-gui / Qt Creator.
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+        "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
+endif()
 
 # ------------------------------------------------------------------------------
 # C++ Standard Configuration
