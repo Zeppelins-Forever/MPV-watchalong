@@ -1,17 +1,49 @@
-Make sure you have Qt Creator installed. We build using it.
+================================================================
+ Windows — Environment Setup & Build (no Qt Creator required)
+================================================================
 
-Download mpv development files from: https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
-Get the mpv-dev-x86_64-*.7z file
-Extract it somewhere (e.g., C:\mpv-dev)
-You'll have:
+We use the MinGW flavor of Qt (same as before — the old Qt Creator
+setup used mingw_64). This matters because the libmpv dev package
+ships a MinGW-style import library (libmpv.dll.a), which links
+cleanly with MinGW but not with MSVC.
 
-- include/mpv/client.h
-- libmpv.dll.a (import library)
-- libmpv-2.dll (runtime DLL)
+ONE-TIME SETUP
+--------------
+1. Run the Qt Online Installer (https://www.qt.io/download-open-source)
+   and select, for your Qt 6.x version:
+       [x] MinGW 64-bit            (the Qt libraries themselves)
+   and under "Build Tools":
+       [x] MinGW <version> 64-bit  (the compiler toolchain)
+       [x] CMake                   (must be 3.25+; the Qt one is)
+       [x] Ninja
+   No Visual Studio and no Qt Creator needed.
 
-Then, once the app is built into an EXE, move libmpv-2.dll into the same folder
-as the exe.
+2. Download libmpv dev files:
+   https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
+   Get mpv-dev-x86_64-*.7z and extract to C:\mpv-dev
+   (or anywhere, then set the MPV_DIR environment variable to that
+   folder — CMakeLists.txt checks MPV_DIR first, then C:\mpv-dev).
 
-Next, run `C:\Qt\<version-number>\<mingw_64 probably>\bin\windeployqt6.exe --no-translations <theEXEname>`
-from the directory your EXE is in to add all the needed Qt libraries into the same
-directory and such.
+3. Add these to your PATH (System Properties -> Environment
+   Variables), adjusting version numbers to what you installed:
+       C:\Qt\Tools\mingw1310_64\bin
+       C:\Qt\Tools\CMake_64\bin
+       C:\Qt\Tools\Ninja
+   And set this environment variable so CMake finds Qt:
+       CMAKE_PREFIX_PATH = C:\Qt\6.x.x\mingw_64
+
+   Open a NEW terminal after changing environment variables.
+
+BUILD (one command, from the project root)
+------------------------------------------
+    cmake --workflow --preset release
+
+Output:          build\MPV-watchalong.exe
+Debug build:     cmake --workflow --preset debug   -> build-debug\
+
+DEPLOYMENT (making the .exe runnable outside this PC / folder)
+--------------------------------------------------------------
+1. Copy libmpv-2.dll (from C:\mpv-dev) into the folder with the exe.
+2. From that folder, pull in the Qt DLLs:
+       C:\Qt\6.x.x\mingw_64\bin\windeployqt6.exe --no-translations MPV-watchalong.exe
+   (windeployqt ships with Qt itself, not Qt Creator.)

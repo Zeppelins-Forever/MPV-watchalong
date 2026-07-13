@@ -1,0 +1,38 @@
+================================================================
+ LINUX — Environment Setup & Build (no Qt Creator required)
+================================================================
+
+ONE-TIME SETUP
+--------------
+Ubuntu / Debian:
+    sudo apt install build-essential cmake ninja-build qt6-base-dev libmpv-dev
+
+Fedora:
+    sudo dnf install gcc-c++ cmake ninja-build qt6-qtbase-devel mpv-libs-devel
+
+Arch:
+    sudo pacman -S base-devel cmake ninja qt6-base mpv
+
+NOTE: CMake 3.25 or newer is required (for --workflow presets).
+Ubuntu 24.04+ and current Fedora/Arch are fine. On older distros
+(e.g. Ubuntu 22.04, which ships CMake 3.22), either install a newer
+CMake (snap install cmake --classic  OR  pip install cmake), or use
+the fallback commands at the bottom of this file.
+
+BUILD (one command, from the project root)
+------------------------------------------
+    cmake --workflow --preset release
+
+Output binary:   build/MPV-watchalong
+Debug build:     cmake --workflow --preset debug   -> build-debug/
+
+OPTIONAL: build with Clang instead of GCC
+-----------------------------------------
+    CXX=clang++ cmake --workflow --preset release
+(Set the CXX env var before the first configure; to switch compilers
+later, delete the build/ directory first.)
+
+FALLBACK (CMake older than 3.25)
+--------------------------------
+    cmake -B build
+    cmake --build build

@@ -1,5 +1,38 @@
-1. Download and install Qt Creator Studio fro Mac
+================================================================
+ macOS — Environment Setup & Build (no Qt Creator required)
+================================================================
 
-2. Open Project (select CMakeLists.txt)
+ONE-TIME SETUP
+--------------
+1. Install the Xcode Command Line Tools (provides Apple Clang):
+       xcode-select --install
 
-3. Build as Release
+2. Install everything else via Homebrew:
+       brew install qt mpv cmake ninja
+
+That's it. The compiler used is Apple Clang (the macOS default —
+this is the same compiler Qt Creator was invoking anyway).
+CMakeLists.txt automatically searches the Homebrew prefixes
+(/opt/homebrew on Apple Silicon, /usr/local on Intel), so no
+CMAKE_PREFIX_PATH fiddling is needed.
+
+BUILD (one command, from the project root)
+------------------------------------------
+    cmake --workflow --preset release
+
+Output:          build/MPV-watchalong.app
+Debug build:     cmake --workflow --preset debug   -> build-debug/
+
+DEPLOYMENT (making a self-contained .app to give to others)
+-----------------------------------------------------------
+The freshly built .app links against your Homebrew Qt and mpv.
+To bundle the Qt frameworks inside the .app so it runs on machines
+without Homebrew:
+
+    $(brew --prefix qt)/bin/macdeployqt build/MPV-watchalong.app
+
+(macdeployqt ships with Qt itself, not Qt Creator.)
+Note: macdeployqt handles the Qt frameworks; libmpv.dylib and its
+dependencies may still need to be copied into Contents/Frameworks
+and re-pathed with install_name_tool for a fully standalone app.
+For personal use on your own machine, the plain build works as-is.
