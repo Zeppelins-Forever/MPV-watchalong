@@ -159,6 +159,14 @@ set(CMAKE_AUTOUIC ON)
 # The QT_VERSION_MAJOR variable is set by Qt's CMake files and tells us
 # which major version (5 or 6) was found.
 # ------------------------------------------------------------------------------
+# On macOS, Homebrew installs Qt under /opt/homebrew (Apple Silicon) or
+# /usr/local (Intel), neither of which CMake searches for package config
+# files by default. Adding them here lets find_package(Qt6) succeed without
+# the user having to set CMAKE_PREFIX_PATH manually.
+if(APPLE)
+    list(APPEND CMAKE_PREFIX_PATH /opt/homebrew /usr/local)
+endif()
+
 find_package(Qt6 QUIET COMPONENTS Widgets)
 
 if(Qt6_FOUND)
